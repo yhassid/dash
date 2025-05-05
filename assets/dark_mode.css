@@ -1,0 +1,243 @@
+/* Dark Mode Styles only when .dark-mode is active */
+
+/* Dropdown input */
+.dark-mode .Select-control {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+}
+
+/* Placeholder text */
+.dark-mode .Select-placeholder {
+    color: #adb5bd !important;
+}
+
+/* Selected value */
+.dark-mode .Select-value-label {
+    color: #f8f9fa !important;
+}
+
+/* Dropdown menu */
+.dark-mode .VirtualizedSelectOption {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+}
+
+/* Hovered option */
+.dark-mode .VirtualizedSelectFocusedOption {
+    background-color: #495057 !important;
+    color: #f8f9fa !important;
+}
+
+/* Open dropdown menu */
+.dark-mode .Select-menu-outer {
+    background-color: #343a40 !important;
+    border-color: #495057 !important;
+}
+
+/* Dropdown arrow */
+.dark-mode .Select-arrow {
+    border-top-color: #f8f9fa !important;
+}
+
+/* Border when menu open */
+.dark-mode .is-open > .Select-control {
+    border-color: #adb5bd !important;
+}
+
+/* Main background color in dark mode */
+.dark-mode {
+    background-color: #212529 !important; /* dark Bootstrap background */
+    color: #f8f9fa !important;             /* light text */
+    min-height: 100vh;                     /* full height */
+}
+
+/* Make sure the dbc.Container is full width */
+.dark-mode .container {
+    /*background-color: transparent !important;*/
+    background-color: #212529 !important;
+}
+
+/* Cards, panels, if any */
+.dark-mode .card {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+}
+
+/* Tables */
+.dark-mode .dash-table-container {
+    background-color: #343a40 !important;
+}
+
+/* Any graphs if needed */
+.dark-mode .js-plotly-plot {
+    background-color: #212529 !important;
+}
+
+/* Smooth transitions */
+/*html, body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Default (light mode) */
+/*html, body {
+    background-color: #ffffff; /* white */
+    /*color: #212529;             /* Bootstrap text-dark */
+/*}
+
+html, body {
+    background-color: white;
+    color: black;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    margin: 0;
+    padding: 0;
+}
+
+/* When dark mode is active */
+.dark-mode,
+.dark-mode html,
+.dark-mode body {
+    background-color: #212529 !important; /* Dark Bootstrap color */
+    color: #f8f9fa !important;
+    min-height: 100vh;
+}
+
+html, body {
+    background-color: white;
+    color: black;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    margin: 0;
+    padding: 0;
+}
+
+/*.dark-mode .container, .dark-mode .row, .dark-mode .col {*/
+/*    background-color: #212529 !important;*/
+/*}*/
+
+/* Dark mode accordion */
+.accordion-item-dark {
+    background-color: #212529;
+    border-color: #444;
+}
+
+.accordion-item-dark .accordion-button {
+    background-color: #212529;  /*#2c2c2c*/
+    color: white;
+}
+
+.accordion-item-dark .accordion-body {
+    background-color: #212529;
+    color: white;
+}
+
+.accordion-item-dark .accordion-button::after {
+    filter: invert(1);
+}
+
+/* Light mode (optional, to keep consistent) */
+.accordion-item-light {
+    background-color: white;
+    border-color: #ddd;
+}
+
+.accordion-item-light .accordion-button {
+    background-color: white;
+    color: black;
+}
+
+.accordion-item-light .accordion-body {
+    background-color: white;
+    color: black;
+}
+
+.light-mode .info-card {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+/* Dark mode card background */
+.dark-mode .info-card {
+    background-color: #2c2c2c;
+    color: #fff;
+}
+
+.light-mode .info-card a {
+    color: #0d6efd; /* Bootstrap primary */
+}
+
+.dark-mode .info-card a {
+    color: #66b2ff;
+}
+
+.last-updated-box {
+    background-color: #e9ecef;  /* light gray fallback */
+    color: #212529;
+    border: 1px solid #adb5bd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Light mode */
+.light-mode .last-updated-box {
+    background-color: #e9ecef;  /* light gray */
+    color: #212529;
+    border: 1px solid #adb5bd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode */
+.dark-mode .last-updated-box {
+    background-color: #495057;  /* dark gray */
+    color: #f8f9fa;
+    border: 1px solid #adb5bd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Hover effect for DataTable rows */
+.table-hover-effect tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.2); /* Hover color for light mode */
+}
+
+.dark-mode .table-hover-effect tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Hover color for dark mode */
+}
+
+/* Optional: For row active state when clicked */
+.table-hover-effect tbody tr.active {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/*!* Base table container *!*/
+/*.dash-table-container .dash-spreadsheet-container {*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);*/
+/*    overflow: hidden;*/
+/*}*/
+
+/*!* Light mode *!*/
+/*.light-mode .dash-table-container .dash-cell {*/
+/*    background-color: white;*/
+/*    color: #212529;*/
+/*}*/
+
+/*.light-mode .dash-table-container .dash-header {*/
+/*    background-color: #f1f3f5;*/
+/*    color: #212529;*/
+/*}*/
+
+/*!* Dark mode *!*/
+/*.dark-mode .dash-table-container .dash-cell {*/
+/*    background-color: #343a40;*/
+/*    color: #f8f9fa;*/
+/*}*/
+
+/*.dark-mode .dash-table-container .dash-header {*/
+/*    background-color: #495057;*/
+/*    color: #f8f9fa;*/
+/*}*/
+
+/*!* Hover highlight entire row (both modes) *!*/
+/*.dash-table-container .dash-row:hover .dash-cell {*/
+/*    background-color: rgba(0, 123, 255, 0.2);*/
+/*    transition: background-color 0.2s ease;*/
+/*    cursor: pointer;*/
+/*}*/
