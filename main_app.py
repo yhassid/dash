@@ -54,17 +54,40 @@ def get_login_layout(hide):
     layout = dbc.Container([
         # Top Row with two logos
         dbc.Row([
+            # dbc.Col(
+            #     html.Img(
+            #         src="assets/bnp_logo.jpg",
+            #         style={
+            #             "width": "100%",  # Stretch to fill left half
+            #             "height": "80px",  # Limit vertical height
+            #             "object-fit": "contain"  # Scale proportionally
+            #         }
+            #     ),
+            #     width=5
+            # ),
             dbc.Col(
-                html.Img(
-                    src="assets/bnp_logo.jpg",
-                    style={
-                        "width": "100%",  # Stretch to fill left half
-                        "height": "80px",  # Limit vertical height
-                        "object-fit": "contain"  # Scale proportionally
-                    }
-                ),
-                width=5
-            ),
+                html.Div([
+                    html.Img(src="assets/bnp_logo.jpg", style={
+                        "display": "block",
+                        "width": "auto",
+                        "height": "80px",
+                        "object-fit": "contain"
+                    }),
+                    html.Div([
+                        html.Div([
+                            html.Div([
+                                html.Span("Powered by", className="credit-prefix"),
+                                html.Span("\u00A0"),
+                                html.Span("eFX Derivatives team", className="credit-main"),
+                                html.Span("  🚀", className="credit-icon"),
+                            ], className="credit-line"),
+                            html.Div("Part of eFic group", className="credit-sub credit-line")
+                        ], className="d-flex flex-column")
+                    ], className="credit-text ms-2")
+                ], className="d-flex align-items-center", style={"gap": "20px"}),
+                width=4,
+                className="d-flex align-items-center justify-content-start p-1 m-1"
+            )
         ], className="mb-3 mt-2", justify="between", align="center"),
 
         # Centered middle logo and title
@@ -120,12 +143,35 @@ def get_main_layout(hide):
             id="main-container",
             children=[
                 dbc.Row([
-                    dbc.Col(html.Img(src="assets/bnp_logo.jpg", style={
-                        "display": "block",
-                        "width": "auto",  # Stretch to fill left half   30
-                        "height": "80px",  # Limit vertical height
-                        "object-fit": "contain"  # Scale proportionally
-                    }), width=4, className="d-flex align-items-center justify-content-start p-1 m-1"),
+                    # dbc.Col(html.Img(src="assets/bnp_logo.jpg", style={
+                    #     "display": "block",
+                    #     "width": "auto",  # Stretch to fill left half   30
+                    #     "height": "80px",  # Limit vertical height
+                    #     "object-fit": "contain"  # Scale proportionally
+                    # }), width=4, className="d-flex align-items-center justify-content-start p-1 m-1"),
+                    dbc.Col(
+                        html.Div([
+                            html.Img(src="assets/bnp_logo.jpg", style={
+                                "display": "block",
+                                "width": "auto",
+                                "height": "80px",
+                                "object-fit": "contain"
+                            }),
+                            html.Div([
+                                html.Div([
+                                    html.Div([
+                                        html.Span("Powered by", className="credit-prefix"),
+                                        html.Span("\u00A0"),
+                                        html.Span("eFX Derivatives team", className="credit-main"),
+                                        html.Span("  🚀", className="credit-icon"),
+                                    ], className="credit-line"),
+                                    html.Div("Part of eFic group", className="credit-sub credit-line")
+                                ], className="d-flex flex-column")
+                            ], className="credit-text ms-2")
+                        ], className="d-flex align-items-center", style={"gap": "20px"}),
+                        width=4,
+                        className="d-flex align-items-center justify-content-start p-1 m-1"
+                    ),
                     dbc.Col(html.H1("My app title", className="text-center mt-0 mb-2")),
                     dbc.Col([
                         dbc.Button("Logout", color="danger", className="mb-3", id="logout-button", n_clicks=0),
@@ -378,9 +424,16 @@ def update_outputs(selectedContinents, theme, inputActiveItems, updateActiveItem
             ],
         )
 
+        linkBtc = html.P([
+            "For more information, ",
+            html.A("click here", href="#", id="popup-link-1", style={"fontSize": "11px"},
+                   className="popup-link", **{"data-url": "https://www.google.com/finance/quote/BTC-USD?hl=en&window=5Y"})
+        ], style={"fontSize": "11px"}),
+
         accordion_items[ix] = dbc.AccordionItem([
                 html.Div(table, style={"marginBottom": "20px"}, className="table-hover-effect"),
-            ],
+                #html.Div(linkBtc, style={"marginBottom": "20px"}, className="table-hover-effect"),
+            ] + [html.Div(linkBtc, style={"marginBottom": "20px"}, className="mb-4")] if ix == 0 else [],
             title=f"Table: {continent}",
             item_id=f"item-table-{continent}",
             className="accordion-item-dark" if dark else "accordion-item-light"
