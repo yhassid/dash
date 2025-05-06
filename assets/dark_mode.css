@@ -1,3 +1,13 @@
+.popup-link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.popup-link:hover {
+    color: #0056b3;
+}
+
 /* Dark Mode Styles only when .dark-mode is active */
 
 /* Dropdown input */
