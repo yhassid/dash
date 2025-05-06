@@ -4,9 +4,42 @@ from dash import html, dcc, dash_table, Input, Output, State
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
+import random
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+# Global variable to store data
+latest_data = {'df': None, 'timestamp': None, 'year': None}
+
+
+def get_latest_data():
+    global latest_data
+    now = datetime.now()
+    minutes = now.minute
+    #number = random.randint(0, 1)
+    year = 2007 if minutes % 2 == 0 else 1952
+    print(f"get latest data at {now} - {year}")
+
+    df = px.data.gapminder().query(f"year == {year}")
+    latest_data['df'] = df
+    latest_data['timestamp'] = now
+    latest_data['year'] = year
+    #latest_data = {'df': df, 'timestamp': now, 'year': year}
+    return
+
+def schedule_calculate():
+    # Start scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(get_latest_data, trigger='interval', seconds=30, max_instances=1, coalesce=True)
+    scheduler.start()
+
+    # Run once at startup
+    get_latest_data()
+
+schedule_calculate()
 
 # Sample data
-df = px.data.gapminder().query("year == 2007")
+#df = px.data.gapminder().query("year == 2007")
 
 # Init app
 app = dash.Dash(
@@ -74,10 +107,14 @@ def get_login_layout(hide):
     return layout
 
 def get_main_layout(hide):
+    df = latest_data['df']
+    continents = [] if df is None else sorted(df['continent'].unique())
+    countries = [] if df is None else sorted(df['country'].unique())
+
     layout = dbc.Container([
         dcc.Store(id="theme-store", data={"dark": False}),
         dcc.Store(id="updateActiveItems", data=True),
-        dcc.Interval(id="update-interval", interval=60*1000, n_intervals=0),  # every 60 sec
+        dcc.Interval(id="update-interval", interval=10*1000, n_intervals=0),  # every 60 sec
 
         html.Div(  # <-- THIS is the main container
             id="main-container",
@@ -101,7 +138,7 @@ def get_main_layout(hide):
                         )
                     ], width=2, className="d-flex flex-column align-items-end"),
                 ], className="my-3", id="top-bar"),
-
+                html.Div(id='toast-container', style={'position': 'fixed', 'top': 10, 'right': 10, 'zIndex': 9999}),
                 dbc.Row([
                     # Left Panel
                     dbc.Col([
@@ -130,7 +167,7 @@ def get_main_layout(hide):
                                 children= [
                                     dcc.Dropdown(
                                         id="continent-dropdown",
-                                        options=[{"label": c, "value": c} for c in sorted(df['continent'].unique())],
+                                        options=[{"label": c, "value": c} for c in continents],
                                         multi=True,
                                         value=['Europe', 'Asia'],
                                         placeholder="Select Continents",
@@ -138,7 +175,7 @@ def get_main_layout(hide):
                                     ),
                                     dcc.Dropdown(
                                         id="country-dropdown",
-                                        options=[{"label": c, "value": c} for c in sorted(df['country'].unique())],
+                                        options=[{"label": c, "value": c} for c in countries],
                                         multi=True,
                                         placeholder="Select Countries",
                                         className="mb-3"
@@ -199,6 +236,7 @@ app.layout = html.Div([
     html.Div(id="page-content"),
     # dcc.Store(id={'type': 'login-state', 'index': 'session'}, storage_type='session'),
     dcc.Store(id="login-state", data=False, storage_type='session'),  # Track login state with a Store
+    dcc.Store(id="user", data='')
     # hidden_main_layout
 ])
 
@@ -207,12 +245,25 @@ app.layout = html.Div([
     Output('page-content', 'children'),
     Output('url', 'pathname'),
     Input('url', 'pathname'),
-    Input('login-state', 'data')  # Track if user is logged in or not
+    Input('login-state', 'data'),  # Track if user is logged in or not
+    State('user', 'data')
 )
-def display_page(pathname, is_logged_in):
+def display_page(pathname, is_logged_in, username):
     if is_logged_in:
         # User is logged in, show dashboard
-        return main_layout, '/my_app/dashboard'
+        toast = dbc.Toast(
+            "You have successfully logged in.",
+            id='auto-toast',
+            header=f"Welcome {username}",
+            icon="success",
+            duration=10000,  # milliseconds
+            is_open=True
+        )
+        return html.Div([
+            main_layout,
+            html.Div(toast, id='toast-container', style={'position': 'fixed', 'top': 10, 'right': 30, 'zIndex': 9999})
+        ]), '/my_app/dashboard'
+        #return main_layout, '/my_app/dashboard'
     # If not logged in, show login page
     return login_layout, '/my_app/login'
 
@@ -234,6 +285,7 @@ def toggle_modal(n1, n2, is_open):
 @app.callback(
     Output('login-state', 'data'),  # Update login state to True or False
     Output('login-alert', 'is_open'),
+    Output('user', 'data'),
     Input('login-button', 'n_clicks'),
     Input('logout-button', 'n_clicks'),
     State('login-username', 'value'),
@@ -247,29 +299,35 @@ def handle_login_logout(login_clicks, logout_clicks, username, password):
     # If login button is clicked
     if triggered == 'login-button' and login_clicks > 0:
         if username == 'admin' and password == 'password':  # Dummy login check
-            return True, False  # Set login state to True
-        return dash.no_update, True
+            return True, False, username  # Set login state to True
+        return dash.no_update, True, ''
 
     # If logout button is clicked (on dashboard)
     elif triggered == 'logout-button' and logout_clicks > 0:
-        return False, False  # Set login state to False (log out)
+        return False, False, ''  # Set login state to False (log out)
 
     # If no button is clicked (or invalid trigger)
-    return dash.no_update, False
+    return dash.no_update, False, dash.no_update
 
 
 @app.callback(
     Output("last-updated", "children"),
     Input("update-interval", "n_intervals"),
-    Input("logout-button", "n_clicks"),
+    #Input("logout-button", "n_clicks"),
 )
-def update_time(n_intervals,  n_clicks):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return f"Last updated: {now}"
+def update_time(n_intervals):#,  n_clicks):
+    #now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = latest_data['timestamp']
+    year = latest_data['year']
+    return f"Last updated: {now} - {year}"
 
 
 def update_outputs(selectedContinents, theme, inputActiveItems, updateActiveItems):
     if not selectedContinents:
+        return [], ([] if updateActiveItems else inputActiveItems)
+
+    df = latest_data['df']
+    if df is None:
         return [], ([] if updateActiveItems else inputActiveItems)
 
     dark = theme.get("dark", False)
@@ -350,11 +408,11 @@ Output("accordion-container", "children"),
     Output("updateActiveItems", "data"),
     Input("continent-dropdown", "value"),
     State("theme-store", "data"),
-    Input("update-interval", "n_intervals"),
+    #Input("update-interval", "n_intervals"),
     State("updateActiveItems", "data"),
     Input("accordion-container", "active_item"),
 )
-def update_outputs_continents(selected, theme, n_intervals, updateActiveItems, inputActiveItems):
+def update_outputs_continents(selected, theme, updateActiveItems, inputActiveItems):
     return update_outputs(selected, theme, inputActiveItems, updateActiveItems) + (False, )
 
 
@@ -363,9 +421,10 @@ def update_outputs_continents(selected, theme, n_intervals, updateActiveItems, i
 Output("accordion-container", "children", allow_duplicate=True),
     State("continent-dropdown", "value"),
     Input("theme-store", "data"),
+    Input("update-interval", "n_intervals"),
     prevent_initial_call=True
 )
-def update_outputs_theme(selected, theme):
+def update_outputs_theme(selected, theme, n_intervals):
     out, _ = update_outputs(selected, theme, [], False)
     return out
 
@@ -422,10 +481,13 @@ def update_theme_store(is_dark):
     Input("continent-dropdown", "value")
 )
 def update_countries(conts):
+    df = latest_data['df']
+    countries = [] if df is None else sorted(df['country'].unique())
     if not conts:
-        return [{"label": c, "value": c} for c in sorted(df['country'].unique())], dash.no_update
-    filtered = df[df["continent"].isin(conts)]
-    return [{"label": c, "value": c} for c in sorted(filtered["country"].unique())], []
+        return [{"label": c, "value": c} for c in countries], dash.no_update
+    filtered = None if df is None else df[df["continent"].isin(conts)]
+    filteredCountries = [] if filtered is None else sorted(filtered['country'].unique())
+    return [{"label": c, "value": c} for c in filteredCountries], []
 
 
 @app.callback(
