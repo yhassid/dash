@@ -235,8 +235,9 @@ app.layout = html.Div([
     dcc.Location(id="url"),
     html.Div(id="page-content"),
     # dcc.Store(id={'type': 'login-state', 'index': 'session'}, storage_type='session'),
-    dcc.Store(id="login-state", data=False, storage_type='session'),  # Track login state with a Store
-    dcc.Store(id="user", data='')
+    #dcc.Store(id="login-state", data=False, storage_type='session'),  # Track login state with a Store
+    dcc.Store(id="login-state", storage_type='session'),  # Track login state with a Store
+    #dcc.Store(id="user", data='')
     # hidden_main_layout
 ])
 
@@ -246,22 +247,22 @@ app.layout = html.Div([
     Output('url', 'pathname'),
     Input('url', 'pathname'),
     Input('login-state', 'data'),  # Track if user is logged in or not
-    State('user', 'data')
+    #State('user', 'data')
 )
-def display_page(pathname, is_logged_in, username):
-    if is_logged_in:
+def display_page(pathname, is_logged_in):
+    if is_logged_in and is_logged_in['logged_in']:
         # User is logged in, show dashboard
         toast = dbc.Toast(
             "You have successfully logged in.",
             id='auto-toast',
-            header=f"Welcome {username}",
+            header=f"Welcome {is_logged_in['username']}",
             icon="success",
-            duration=10000,  # milliseconds
+            duration=5000,  # milliseconds
             is_open=True
         )
         return html.Div([
             main_layout,
-            html.Div(toast, id='toast-container', style={'position': 'fixed', 'top': 10, 'right': 30, 'zIndex': 9999})
+            html.Div(toast, id='toast-container', style={'position': 'fixed', 'top': '10%', 'left': '50%', 'zIndex': 9999, 'transform': 'translateX(-50%'})
         ]), '/my_app/dashboard'
         #return main_layout, '/my_app/dashboard'
     # If not logged in, show login page
@@ -285,7 +286,7 @@ def toggle_modal(n1, n2, is_open):
 @app.callback(
     Output('login-state', 'data'),  # Update login state to True or False
     Output('login-alert', 'is_open'),
-    Output('user', 'data'),
+    #Output('user', 'data'),
     Input('login-button', 'n_clicks'),
     Input('logout-button', 'n_clicks'),
     State('login-username', 'value'),
@@ -299,15 +300,17 @@ def handle_login_logout(login_clicks, logout_clicks, username, password):
     # If login button is clicked
     if triggered == 'login-button' and login_clicks > 0:
         if username == 'admin' and password == 'password':  # Dummy login check
-            return True, False, username  # Set login state to True
-        return dash.no_update, True, ''
+            #return True, False  # Set login state to True
+            return {'logged_in': True, 'username': username}, False
+        return dash.no_update, True
 
     # If logout button is clicked (on dashboard)
     elif triggered == 'logout-button' and logout_clicks > 0:
-        return False, False, ''  # Set login state to False (log out)
+        #return False, False  # Set login state to False (log out)
+        return {'logged_in': False, 'username': ''}, False
 
     # If no button is clicked (or invalid trigger)
-    return dash.no_update, False, dash.no_update
+    return dash.no_update, False
 
 
 @app.callback(
