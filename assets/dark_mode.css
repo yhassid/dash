@@ -8,6 +8,18 @@
     color: #0056b3;
 }
 
+.dark-mode, .dark-mode body, .dark-mode html {
+    background-color: #121212 !important; /* Or your dark color */
+    color: #e0e0e0; /* Optional: default text color */
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.dark-mode * {
+    box-sizing: border-box;
+}
+
 /* Dark Mode Styles only when .dark-mode is active */
 
 /* Dropdown input */
@@ -68,6 +80,12 @@
     background-color: #212529 !important;
 }
 
+.dark-mode .container,
+.dark-mode .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 /* Cards, panels, if any */
 .dark-mode .card {
     background-color: #343a40 !important;
@@ -112,12 +130,39 @@ html, body {
     min-height: 100vh;
 }
 
+.dark-mode #left-panel,
+.dark-mode #main-area,
+.dark-mode #top-bar {
+    background-color: #212529 !important;
+    color: #f8f9fa;
+}
+
+.dark-mode .row, .dark-mode .col,
+.light-mode .row, .light-mode .col {
+    margin: 0;
+    padding: 0;
+}
+
 html, body {
     background-color: white;
     color: black;
     transition: background-color 0.5s ease, color 0.5s ease;
     margin: 0;
     padding: 0;
+    height: 100%;
+}
+
+.dark-mode, .dark-mode body, .dark-mode .container-fluid {
+    background-color: #212529 !important;
+    color: #f8f9fa !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 100vh;
+}
+
+.light-mode, .light-mode body, .light-mode .container-fluid {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 /*.dark-mode .container, .dark-mode .row, .dark-mode .col {*/
@@ -216,6 +261,44 @@ html, body {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
+/* Support toast color in dark mode */
+.dark-mode .toast-dark-support {
+    background-color: #333 !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #555 !important;
+}
+
+.dark-mode .toast-dark-support .toast-header {
+    background-color: #222 !important;
+    color: #f0f0f0 !important;
+    border-bottom: 1px solid #555 !important;
+}
+
+.dark-mode .modal-dark-fix .modal-content,
+.dark-mode .modal-dialog.modal-dark-fix > .modal-content {
+    background-color: #2c2c2c !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #444;
+}
+
+.dark-mode .modal-dark-fix .modal-header,
+.dark-mode .modal-dialog.modal-dark-fix > .modal-content .modal-header {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-bottom: 1px solid #444;
+}
+
+.dark-mode .modal-dark-fix .modal-body,
+.dark-mode .modal-dialog.modal-dark-fix > .modal-content .modal-body {
+    background-color: #2c2c2c !important;
+    color: #f0f0f0 !important;
+}
+
+.modal-content {
+    resize: both;
+    overflow: auto;
+}
+
 .credit-text {
     margin-left: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -266,29 +349,31 @@ html, body {
     animation: shakeRocket 0.6s ease-in-out;
 }
 
-body.dark-mode .credit-text {
+.dark-mode .credit-text {
     color: #f0f0f0;
     background: linear-gradient(90deg, rgba(102,178,255,0.3), rgba(102,178,255,0));
     box-shadow: 0 1px 6px rgba(255,255,255,0.15);
 }
 
-body.dark-mode .credit-main {
+.dark-mode .credit-main {
     color: #66b2ff;
     text-shadow: 0 0 6px rgba(102,178,255,0.6);
 }
 
-body.dark-mode .credit-sub {
+.dark-mode .credit-sub {
     color: #cccccc;
 }
 
-body.dark-mode .credit-prefix {
+.dark-mode .credit-prefix {
     color: #bbbbbb;
 }
 
-body.dark-mode .credit-icon {
+.dark-mode .credit-icon {
     color: #ffdd55;
     text-shadow: 0 0 8px rgba(255, 221, 85, 0.8);
     font-size: 22px;
+    animation: floatRocket 2s ease-in-out infinite;
+    display: inline-block;
 }
 
 /* Animations */

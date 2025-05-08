@@ -4,6 +4,8 @@ from dash import html, dcc, dash_table, Input, Output, State
 import pandas as pd
 from datetime import datetime
 import plotly.express as px
+import plotly.graph_objects as go
+
 import random
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -185,6 +187,17 @@ def get_main_layout(hide):
                     ], width=2, className="d-flex flex-column align-items-end"),
                 ], className="my-3", id="top-bar"),
                 html.Div(id='toast-container', style={'position': 'fixed', 'top': 10, 'right': 10, 'zIndex': 9999}),
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(dbc.ModalTitle(id="popup-chart-title"), className="modal-dark-fix"),
+                        dbc.ModalBody(dcc.Graph(id="popup-chart"), className="modal-dark-fix"),
+                    ],
+                    id="chart-modal",
+                    size="xl",
+                    is_open=False,
+                    backdrop="static",
+                    className="modal-dark-fix"
+                ),
                 dbc.Row([
                     # Left Panel
                     dbc.Col([
@@ -233,7 +246,14 @@ def get_main_layout(hide):
                                         placeholder="Select Options",
                                         className="mb-4"
                                     ),
-                                    dbc.Button("Apply", id="apply-button", color="success", className="mb-2", n_clicks=0),
+                                    #dbc.Button("Apply", id="apply-button", color="success", className="mb-2", n_clicks=0),
+                                    html.Div([
+                                        dbc.Button("Download", id="download-btn", color="primary", className="mt-3"),
+                                        html.Div(id='toast-download', className="ms-3")  # toast goes next to button
+                                    ], className="d-flex align-items-center"),
+                                    #dbc.Button("Download", id="download-btn", color="primary", className="mt-3"),
+                                    dcc.Download(id="download"),
+                                    #html.Div(id='toast-download', style={'position': 'fixed', 'top': 10, 'right': 10, 'zIndex': 9999}),
                                     dbc.Alert(
                                         [
                                             "If you have any issues, please contact ",
@@ -399,6 +419,7 @@ def update_outputs(selectedContinents, theme, inputActiveItems, updateActiveItem
 
         # Create Dash DataTable
         table = dash_table.DataTable(
+            id={"type": "dynamic-table", "index": continent},
             data=filtered.to_dict('records'),
             columns=[{'name': i, 'id': i} for i in filtered.columns],
             style_table={'overflowX': 'auto'},
@@ -433,7 +454,7 @@ def update_outputs(selectedContinents, theme, inputActiveItems, updateActiveItem
         accordion_items[ix] = dbc.AccordionItem([
                 html.Div(table, style={"marginBottom": "20px"}, className="table-hover-effect"),
                 #html.Div(linkBtc, style={"marginBottom": "20px"}, className="table-hover-effect"),
-            ] + [html.Div(linkBtc, style={"marginBottom": "20px"}, className="mb-4")] if ix == 0 else [],
+            ] + ([html.Div(linkBtc, style={"marginBottom": "20px"}, className="mb-4")] if ix == 0 else []),
             title=f"Table: {continent}",
             item_id=f"item-table-{continent}",
             className="accordion-item-dark" if dark else "accordion-item-light"
@@ -559,5 +580,70 @@ def update_select_theme(theme):
 
     return base_class, base_class, base_class_last
 
+
+@app.callback(
+    Output("chart-modal", "is_open"),
+    Output("popup-chart", "figure"),
+    Output("popup-chart-title", "children"),
+    Input({"type": "dynamic-table", "index": dash.dependencies.ALL}, "active_cell"),
+    State({"type": "dynamic-table", "index": dash.dependencies.ALL}, "data"),
+    State("theme-store", "data"),
+    prevent_initial_call=True
+)
+def show_chart(all_active_cells, all_data, theme):
+    df = latest_data['df']
+    dark = theme.get("dark", False)
+    plot_theme = "plotly_dark" if dark else "plotly_white"
+
+    if df is not None:
+        for table_idx, active_cell in enumerate(all_active_cells):
+            if active_cell:
+                row_idx = active_cell["row"]
+                col_id = active_cell["column_id"]
+
+
+                # Only trigger if "Value" column was clicked
+                #if col_id == "Value":
+                # row_data = data[row_idx]
+                # value = row_data["Value"]
+
+                # Build a simple chart (e.g., bar showing the value)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=[1, 2, 3], y=[4, 5, 6]))  # Build your chart
+                fig.update_layout(title=f"Chart for row: {row_idx} and column: {col_id}", template=plot_theme)
+
+                return True, fig, f"Modal {col_id} - {row_idx}"
+
+    raise dash.exceptions.PreventUpdate
+
+
+@app.callback(
+    Output("download", "data"),
+    Output('toast-download', 'children'),
+    Input("download-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def download_file(n_clicks):
+    # Your HTML content
+    content = """
+    <html>
+        <head><title>Test Download</title></head>
+        <body><h1>Hello from Dash!</h1></body>
+    </html>
+    """
+    # Toast popup
+    toast = dbc.Toast(
+        "Download started successfully.",
+        id="download-toast",
+        header="Download",
+        icon="info",
+        duration=3000,
+        is_open=True,
+        className="mt-2 toast-dark-support"
+    )
+    return dcc.send_string(content, filename="example.html"), toast
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
