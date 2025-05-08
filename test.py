@@ -23,3 +23,36 @@ app.layout = dbc.Container([
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Details Chart")),
+        dbc.ModalBody(dcc.Graph(id="popup-chart")),
+    ],
+    id="chart-modal",
+    size="lg",
+    is_open=False,
+)
+
+
+
+@app.callback(
+    Output("chart-modal", "is_open"),
+    Output("popup-chart", "figure"),
+    Input("my-table", "active_cell"),
+    State("chart-modal", "is_open"),
+    prevent_initial_call=True
+)
+def display_chart(active_cell, is_open):
+    if active_cell:
+        row = active_cell["row"]
+        col = active_cell["column_id"]
+        # Check if this column is one of the "special" ones
+        if col in ["column_with_chart"]:
+            # Build a custom figure based on that row
+            fig = px.line(data_for_row(row))
+            return True, fig
+    return False, dash.no_update
